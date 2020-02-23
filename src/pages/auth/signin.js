@@ -1,13 +1,16 @@
 import React from 'react';
 import { withFormik, Form, Field } from 'formik';
 import * as Yup from 'yup';
-import fetch from 'isomorphic-unfetch';
+import http from '../../components/http';
 
 const SignInSchema = Yup.object().shape({
   email: Yup.string()
     .email('Invalid email')
     .required('Required'),
-  password: Yup.string().min(8, 'Password must be at least ${min} characters long')
+  password: Yup.string().min(
+    8,
+    'Password must be at least ${min} characters long'
+  )
 });
 const signinForm = ({ errors, touched }) => {
   return (
@@ -21,7 +24,9 @@ const signinForm = ({ errors, touched }) => {
         <div>
           <label htmlFor="password">Password</label>
           <Field type="password" name="password" />
-          {errors.password && touched.password ? <div>{errors.password}</div> : null}
+          {errors.password && touched.password ? (
+            <div>{errors.password}</div>
+          ) : null}
         </div>
         <div>
           <button type="submit">Sign In</button>
@@ -37,8 +42,18 @@ const signin = withFormik({
     password: ''
   }),
   validationSchema: SignInSchema,
-  handleSubmit: values => {
-    console.log(values);
+  handleSubmit: async values => {
+    const signinData = {
+      auth: { ...values }
+    };
+
+    const response = await http(
+      'http://localhost:5000/api/user_token',
+      'POST',
+      signinData
+    );
+
+    const data = await response;
   }
 })(signinForm);
 
