@@ -1,22 +1,52 @@
 import React from 'react'
+import { withFormik, Form, Field } from 'formik'
+import * as Yup from 'yup'
 
-
-export default function signin() {
+const SignInSchema = Yup.object().shape({
+  email: Yup.string()
+    .email('Invalid email')
+    .required('Required'),
+  password: Yup.string()
+    .min(8, 'Password must be at least ${min} characters long')
+})
+const signinForm = ({
+  errors,
+  touched
+}) => {
   return (
     <div>
-      <form>
+      <Form noValidate>
         <div>
           <label htmlFor="email">Email</label>
-          <input type="email" name="email" id="email"/>
+          <Field type="email" name="email"/>
+          {errors.email && touched.email ? (
+            <div>{errors.email}</div>
+          ) : null}
         </div>
         <div>
           <label htmlFor="password">Password</label>
-          <input type="password" name="password" id="password"/>
+          <Field type="password" name="password"/>
+          {errors.password && touched.password ? (
+            <div>{errors.password}</div>
+          ) : null}
         </div>
         <div>
           <button type="submit">Sign In</button>
         </div>
-      </form>
+      </Form>
     </div>
   )
 }
+
+const signin = withFormik({
+  mapPropsToValues: () => ({
+    email: '',
+    password: ''
+  }),
+  validationSchema: SignInSchema,
+  handleSubmit: (values) => {
+    console.log(values)
+  }
+})(signinForm)
+
+export default signin
